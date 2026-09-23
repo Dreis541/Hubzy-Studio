@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hubzy Studio — Instagram Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hubzyPurple: '#311082',
+                        hubzyCyan:   '#00D2FF',
+                        hubzyOrange: '#FF7E40',
+                        hubzyMagenta:'#E02484',
+                        hubzyBlue:   '#0E52D1',
+                        hubzyDark:   '#0B0726',
+                    },
+                    fontFamily: {
+                        nunito:  ['Nunito', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif:   ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .canvas-container { aspect-ratio: 1 / 1; }
+        .canvas-container.stories { aspect-ratio: 9/16; height: 600px; width: 337.5px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .color-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition: all .2s; }
+        .color-swatch.active { border-color: #fff; transform: scale(1.2); }
+        #onboarding { transition: opacity .4s; }
+        .step-dot { width:8px; height:8px; border-radius:50%; background:#334155; transition: background .3s; }
+        .step-dot.active { background:#00D2FF; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; padding: 0; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-jakarta min-h-screen flex flex-col">
+
+<!-- ══════════════════════════════════════════════════════════
+     ONBOARDING MODAL
+══════════════════════════════════════════════════════════ -->
+<div id="onboarding" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-hubzyPurple via-hubzyBlue to-hubzyCyan p-0.5">
+            <div class="bg-slate-900 px-6 pt-6 pb-4">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-hubzyPurple to-hubzyCyan flex items-center justify-center text-white font-black text-sm">H</div>
+                    <span class="font-bold text-white text-lg">Hubzy Studio</span>
+                    <span class="text-xs bg-hubzyCyan/10 text-hubzyCyan px-2 py-0.5 rounded-full border border-hubzyCyan/20">v2.0</span>
+                </div>
+                <p class="text-slate-400 text-sm">Configure sua identidade visual em 3 passos rápidos</p>
+                <!-- Step dots -->
+                <div class="flex gap-2 mt-3">
+                    <div class="step-dot active" id="dot-1"></div>
+                    <div class="step-dot" id="dot-2"></div>
+                    <div class="step-dot" id="dot-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Steps -->
+        <!-- Step 1: Nome e nicho -->
+        <div id="ob-step-1" class="p-6 space-y-4">
+            <h2 class="font-bold text-white text-base flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-hubzyCyan/20 text-hubzyCyan text-xs flex items-center justify-center font-bold">1</span>
+                Dados da empresa
+            </h2>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Nome da empresa</label>
+                <input id="ob-company" type="text" placeholder="Ex: Clínica Vitale" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-hubzyCyan">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Segmento / Nicho</label>
+                <select id="ob-niche" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-hubzyCyan">
+                    <option value="geral">Geral / Outro</option>
+                    <option value="saude">Saúde & Bem-estar</option>
+                    <option value="auto">Automotivo</option>
+                    <option value="tech">Tecnologia & Apps</option>
+                    <option value="varejo">Varejo & Loja</option>
+                    <option value="alimentacao">Alimentação & Restaurante</option>
+                    <option value="educacao">Educação & Cursos</option>
+                    <option value="beleza">Beleza & Estética</option>
+                    <option value="juridico">Jurídico & Consultoria</option>
+                    <option value="imoveis">Imóveis</option>
+                    <option value="rh">RH & Gestão de Pessoas</option>
+                    <option value="religioso">Religioso & Igreja</option>
+                    <option value="turismo">Turismo & Viagem</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Handle do Instagram</label>
+                <input id="ob-handle" type="text" placeholder="@suaempresa" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-hubzyCyan">
+            </div>
+            <button onclick="obNext(2)" class="w-full bg-gradient-to-r from-hubzyCyan to-hubzyBlue text-white font-bold py-2.5 rounded-xl text-sm mt-2">
+                Próximo <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+
+        <!-- Step 2: Logo -->
+        <div id="ob-step-2" class="p-6 space-y-4 hidden">
+            <h2 class="font-bold text-white text-base flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-hubzyCyan/20 text-hubzyCyan text-xs flex items-center justify-center font-bold">2</span>
+                Logo da empresa
+            </h2>
+            <div id="ob-logo-drop" onclick="document.getElementById('ob-logo-input').click()"
+                 class="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center cursor-pointer hover:border-hubzyCyan transition flex flex-col items-center gap-3">
+                <div id="ob-logo-preview" class="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                    <i class="fa-solid fa-image text-slate-500 text-2xl"></i>
+                </div>
+                <p class="text-sm text-slate-400">Clique para carregar seu logo</p>
+                <p class="text-xs text-slate-500">PNG, JPG ou SVG · Fundo transparente recomendado</p>
+            </div>
+            <input type="file" id="ob-logo-input" accept="image/*" class="hidden" onchange="obLoadLogo(event)">
+            <p class="text-xs text-slate-500 text-center">Pode pular e adicionar depois</p>
+            <div class="flex gap-2">
+                <button onclick="obNext(1)" class="flex-1 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm border border-slate-700">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
+                </button>
+                <button onclick="obNext(3)" class="flex-1 bg-gradient-to-r from-hubzyCyan to-hubzyBlue text-white font-bold py-2.5 rounded-xl text-sm">
+                    Próximo <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Cores -->
+        <div id="ob-step-3" class="p-6 space-y-4 hidden">
+            <h2 class="font-bold text-white text-base flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-hubzyCyan/20 text-hubzyCyan text-xs flex items-center justify-center font-bold">3</span>
+                Identidade de cores
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Cor Primária</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="ob-color-primary" value="#00D2FF" class="shadow-lg">
+                        <span class="text-xs text-slate-400">Títulos e destaques</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Cor Secundária</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" id="ob-color-secondary" value="#FF7E40" class="shadow-lg">
+                        <span class="text-xs text-slate-400">Acentos e CTAs</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Paletas prontas</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="setPalette('#00D2FF','#FF7E40')" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-hubzyCyan text-[10px] text-slate-400 flex flex-col items-center gap-1 transition">
+                        <div class="flex gap-1"><span class="w-4 h-4 rounded-full bg-[#00D2FF]"></span><span class="w-4 h-4 rounded-full bg-[#FF7E40]"></span></div>
+                        Hubzy
+                    </button>
+                    <button onclick="setPalette('#E02484','#311082')" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-hubzyCyan text-[10px] text-slate-400 flex flex-col items-center gap-1 transition">
+                        <div class="flex gap-1"><span class="w-4 h-4 rounded-full bg-[#E02484]"></span><span class="w-4 h-4 rounded-full bg-[#311082]"></span></div>
+                        Magenta
+                    </button>
+                    <button onclick="setPalette('#10B981','#065F46')" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-hubzyCyan text-[10px] text-slate-400 flex flex-col items-center gap-1 transition">
+                        <div class="flex gap-1"><span class="w-4 h-4 rounded-full bg-[#10B981]"></span><span class="w-4 h-4 rounded-full bg-[#065F46]"></span></div>
+                        Verde
+                    </button>
+                    <button onclick="setPalette('#F59E0B','#B45309')" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-hubzyCyan text-[10px] text-slate-400 flex flex-col items-center gap-1 transition">
+                        <div class="flex gap-1"><span class="w-4 h-4 rounded-full bg-[#F59E0B]"></span><span class="w-4 h-4 rounded-full bg-[#B45309]"></span></div>
+                        Dourado
+                    </button>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="obNext(2)" class="flex-1 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm border border-slate-700">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
+                </button>
+                <button onclick="finishOnboarding()" class="flex-1 bg-gradient-to-r from-hubzyCyan to-hubzyBlue text-white font-bold py-2.5 rounded-xl text-sm">
+                    <i class="fa-solid fa-rocket mr-1"></i> Começar a criar!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     APP PRINCIPAL
+══════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden flex-col min-h-screen">
+
+<!-- Header -->
+<header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+        <div id="header-logo-wrap" class="w-9 h-9 rounded-full bg-gradient-to-tr from-hubzyPurple to-hubzyCyan p-0.5 overflow-hidden">
+            <img id="header-logo" src="" alt="Logo" class="w-full h-full object-cover rounded-full hidden">
+            <div id="header-logo-placeholder" class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-white font-black text-sm">H</div>
+        </div>
+        <div>
+            <h1 class="font-bold text-base text-white flex items-center gap-2">
+                <span id="header-company">Hubzy Studio</span>
+                <span class="text-xs bg-hubzyCyan/10 text-hubzyCyan px-2 py-0.5 rounded-full border border-hubzyCyan/20">Instagram Builder</span>
+            </h1>
+            <p id="header-niche" class="text-xs text-slate-400">Posts profissionais em segundos</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <button onclick="resetOnboarding()" title="Reconfigurar" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-hubzyCyan flex items-center justify-center transition text-xs">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+        <button onclick="toggleGuide(true)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 flex items-center gap-1 border border-slate-700 transition">
+            <i class="fa-solid fa-circle-info text-hubzyCyan"></i> Como Usar
+        </button>
+        <button onclick="changeAspect('feed')" id="btn-aspect-feed" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-hubzyPurple text-white flex items-center gap-1 border border-hubzyPurple">
+            <i class="fa-solid fa-square"></i> Feed
+        </button>
+        <button onclick="changeAspect('stories')" id="btn-aspect-stories" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1 border border-slate-700 transition">
+            <i class="fa-solid fa-mobile-screen-button"></i> Stories
+        </button>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+    <!-- Painel Esquerdo -->
+    <aside class="w-full lg:w-96 bg-slate-950 border-r border-slate-800 flex flex-col max-h-[calc(100vh-61px)] overflow-y-auto no-scrollbar">
+
+        <!-- 1. Cards -->
+        <div class="p-5 border-b border-slate-800">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-hubzyCyan"></i> 1. Escolha o Card
+            </h2>
+            <div id="card-buttons" class="grid grid-cols-2 gap-2">
+                <!-- Gerado via JS -->
+            </div>
+        </div>
+
+        <!-- 2. Conteúdo -->
+        <div class="p-5 border-b border-slate-800">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-hubzyOrange"></i> 2. Edite o Conteúdo
+            </h2>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">Etiqueta do Topo</label>
+                    <input type="text" id="input-tag" oninput="updateContent()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-hubzyCyan">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">Título Principal</label>
+                    <textarea id="input-title" oninput="updateContent()" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-hubzyCyan resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">Descrição</label>
+                    <textarea id="input-body" oninput="updateContent()" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-hubzyCyan resize-none"></textarea>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1 uppercase">
+                        <span>Tamanho do Título</span>
+                        <span id="title-size-val">28px</span>
+                    </div>
+                    <input type="range" id="input-font-size" min="18" max="42" value="28" oninput="updateTitleSize()" class="w-full accent-hubzyCyan bg-slate-800 h-1 rounded-lg cursor-pointer">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">CTA</label>
+                        <input type="text" id="input-cta" oninput="updateContent()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-hubzyCyan">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">Handle</label>
+                        <input type="text" id="input-handle" oninput="updateContent()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-hubzyCyan">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Estilo -->
+        <div class="p-5 border-b border-slate-800">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-palette text-hubzyMagenta"></i> 3. Estilo & Cores
+            </h2>
+            <div class="space-y-4">
+                <!-- Tema -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase">Tema de Fundo</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setTheme('dark-gradient')" id="btn-theme-dark-gradient" class="p-2 rounded-lg text-xs bg-slate-900 border border-hubzyCyan flex items-center gap-1 justify-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-hubzyPurple to-hubzyBlue"></span> Degradê Escuro
+                        </button>
+                        <button onclick="setTheme('neon-sunset')" id="btn-theme-neon-sunset" class="p-2 rounded-lg text-xs bg-slate-900 border border-slate-800 flex items-center gap-1 justify-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-hubzyMagenta to-hubzyOrange"></span> Neon Sunset
+                        </button>
+                        <button onclick="setTheme('clean-white')" id="btn-theme-clean-white" class="p-2 rounded-lg text-xs bg-slate-900 border border-slate-800 flex items-center gap-1 justify-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-300"></span> Minimal Branco
+                        </button>
+                        <button onclick="setTheme('brand-color')" id="btn-theme-brand-color" class="p-2 rounded-lg text-xs bg-slate-900 border border-slate-800 flex items-center gap-1 justify-center">
+                            <span id="brand-swatch" class="w-2.5 h-2.5 rounded-full bg-hubzyPurple"></span> Cor da Marca
+                        </button>
+                    </div>
+                </div>
+                <!-- Cores da marca -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase">Cores da Marca</label>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="color-primary" value="#00D2FF" oninput="applyBrandColors()" class="shadow-lg">
+                            <span class="text-[10px] text-slate-400">Primária</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="color-secondary" value="#FF7E40" oninput="applyBrandColors()" class="shadow-lg">
+                            <span class="text-[10px] text-slate-400">Secundária</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tipografia -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">Tipografia</label>
+                    <select id="select-font" onchange="updateFont()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-hubzyCyan">
+                        <option value="font-jakarta">Plus Jakarta Sans (Moderna)</option>
+                        <option value="font-nunito">Nunito (Amigável / Arredondada)</option>
+                        <option value="font-serif">Playfair Display (Editorial)</option>
+                    </select>
+                </div>
+                <!-- Logo -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase">Logo</label>
+                    <button onclick="document.getElementById('logo-uploader').click()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-300 flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-upload text-hubzyCyan"></i> Trocar Logo
+                    </button>
+                    <input type="file" id="logo-uploader" accept="image/*" onchange="uploadLogo(event)" class="hidden">
+                </div>
+                <!-- Toggles -->
+                <div class="flex items-center justify-between">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase">Grafismo decorativo</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-nodes" onchange="toggleNodes()" class="sr-only peer" checked>
+                        <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-hubzyCyan"></div>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase">Borda no Logo</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-logo-border" onchange="toggleLogoBorder()" class="sr-only peer" checked>
+                        <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-hubzyCyan"></div>
+                    </label>
+                </div>
+                <!-- Marca d'água -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase">Marca d'água Hubzy</label>
+                        <p class="text-[10px] text-slate-500">Exibe "Criado com Hubzy Studio" no post</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-watermark" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-hubzyCyan"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Legenda -->
+        <div class="p-5 border-b border-slate-800 bg-slate-950/60">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-hashtag text-hubzyCyan"></i> 4. Legenda do Instagram
+            </h2>
+            <div class="space-y-2">
+                <textarea id="output-caption" readonly class="w-full h-24 bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-300 focus:outline-none resize-none no-scrollbar"></textarea>
+                <button onclick="copyCaption()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs py-2 rounded-lg font-semibold transition flex items-center justify-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar Legenda
+                </button>
+            </div>
+        </div>
+
+        <!-- Export -->
+        <div class="p-5 mt-auto bg-slate-950/90 border-t border-slate-800 sticky bottom-0">
+            <button onclick="exportPost()" class="w-full bg-gradient-to-r from-hubzyCyan via-hubzyBlue to-hubzyPurple hover:brightness-110 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-download"></i> Baixar Imagem (PNG)
+            </button>
+            <p class="text-[10px] text-slate-500 text-center mt-2">1080×1080px (Feed) · 1080×1920px (Stories)</p>
+        </div>
+    </aside>
+
+    <!-- Preview -->
+    <section class="flex-1 bg-slate-900 flex items-center justify-center p-6 md:p-12 overflow-y-auto">
+        <div id="export-target" class="canvas-container w-full max-w-[500px] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col p-8 md:p-10 justify-between transition-all duration-300"
+             style="background: radial-gradient(circle at 50% 120%, #0e52d12b 0%, #31108221 40%, #050212 100%), #0b0726;">
+
+            <!-- Grafismo decorativo -->
+            <div id="nodes-container" class="absolute inset-0 pointer-events-none opacity-40">
+                <svg class="absolute top-0 left-0 w-48 h-48" viewBox="0 0 100 100">
+                    <path d="M -10,30 Q 30,30 30,70" fill="none" stroke="#00D2FF" stroke-width="1.5" opacity=".4"/>
+                    <path d="M 30,70 Q 50,20 90,10" fill="none" stroke="#00D2FF" stroke-width="1" stroke-dasharray="3 3" opacity=".3"/>
+                    <circle cx="30" cy="70" r="4" fill="#00D2FF"/>
+                    <circle cx="90" cy="10" r="3" fill="#FF7E40"/>
+                </svg>
+                <svg class="absolute bottom-0 right-0 w-56 h-56" viewBox="0 0 100 100">
+                    <path d="M 110,70 Q 70,60 60,30" fill="none" stroke="#E02484" stroke-width="1.5" opacity=".3"/>
+                    <path d="M 60,30 Q 30,20 10,40" fill="none" stroke="#E02484" stroke-width="1" opacity=".25"/>
+                    <circle cx="60" cy="30" r="5" fill="#E02484"/>
+                    <circle cx="10" cy="40" r="3" fill="#00D2FF"/>
+                </svg>
+            </div>
+
+            <!-- Top bar -->
+            <div class="flex items-center justify-between z-10 w-full">
+                <span id="canvas-tag" class="text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-full border"
+                      style="color:#00D2FF; background:rgba(0,210,255,0.1); border-color:rgba(0,210,255,0.2)">
+                    ETIQUETA DO POST
+                </span>
+                <div id="canvas-logo-wrapper" class="w-12 h-12 rounded-full bg-slate-950 p-0.5 shadow-md ring-4 transition-all overflow-hidden" style="--tw-ring-color:rgba(0,210,255,0.2)">
+                    <img id="canvas-logo" src="" alt="Logo" class="w-full h-full object-cover rounded-full hidden">
+                    <div id="canvas-logo-placeholder" class="w-full h-full rounded-full bg-gradient-to-tr from-hubzyPurple to-hubzyCyan flex items-center justify-center text-white font-black text-lg">H</div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="my-auto z-10 py-6">
+                <div id="quote-mark" class="hidden text-7xl font-serif leading-none h-4 -mt-4 mb-4 opacity-20" style="color:#E02484">"</div>
+                <h3 id="canvas-title" class="text-2xl md:text-3xl font-extrabold text-white leading-snug tracking-tight">
+                    Título do seu post aqui
+                </h3>
+                <p id="canvas-body" class="text-sm md:text-base text-slate-300 mt-4 leading-relaxed font-light">
+                    Descrição do post com a mensagem principal da sua empresa para o público.
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between z-10 pt-4 border-t border-slate-800/60 w-full">
+                <div class="flex items-center gap-2">
+                    <span id="canvas-dot" class="w-2.5 h-2.5 rounded-full animate-pulse" style="background:#FF7E40"></span>
+                    <span id="canvas-cta" class="text-xs font-bold text-slate-200 uppercase tracking-wider">FALE CONOSCO</span>
+                </div>
+                <div class="flex items-center gap-1 text-slate-400">
+                    <i class="fa-brands fa-instagram text-xs" style="color:#E02484"></i>
+                    <span id="canvas-handle" class="text-xs font-semibold text-slate-300">@suaempresa</span>
+                </div>
+            </div>
+
+            <!-- Marca d'água -->
+            <div id="watermark" class="hidden absolute bottom-1 right-2 text-[8px] text-slate-600 font-semibold tracking-wider">Criado com Hubzy Studio</div>
+        </div>
+    </section>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: COMO USAR
+══════════════════════════════════════════════════════════ -->
+<div id="guide-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-question text-hubzyCyan text-xl"></i>
+                <div>
+                    <h3 class="font-bold text-white text-base">Como Usar o Hubzy Studio</h3>
+                    <p class="text-xs text-slate-400">Guia rápido para criar posts profissionais</p>
+                </div>
+            </div>
+            <button onclick="toggleGuide(false)" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 no-scrollbar">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800">
+                    <span class="text-hubzyOrange font-bold text-xs block mb-1">Passo 1</span>
+                    <p class="text-[11px] text-slate-400">Escolha o <strong>card</strong> no painel à esquerda que melhor combina com sua mensagem do dia.</p>
+                </div>
+                <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800">
+                    <span class="text-hubzyCyan font-bold text-xs block mb-1">Passo 2</span>
+                    <p class="text-[11px] text-slate-400">Edite o título, descrição e CTA. O preview atualiza em tempo real enquanto você digita.</p>
+                </div>
+                <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800">
+                    <span class="text-hubzyMagenta font-bold text-xs block mb-1">Passo 3</span>
+                    <p class="text-[11px] text-slate-400">Clique em <strong>Baixar Imagem</strong> para o PNG e <strong>Copiar Legenda</strong> para usar no Instagram.</p>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-white text-sm uppercase tracking-wider text-hubzyOrange flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-calendar-days"></i> Sugestão de Calendário Semanal
+                </h4>
+                <div class="space-y-2">
+                    <div class="p-3 bg-slate-950/30 rounded-xl border border-slate-800/80 flex gap-3">
+                        <span class="text-[10px] bg-hubzyPurple/40 text-white px-2 py-0.5 rounded-full border border-hubzyPurple/50 h-fit whitespace-nowrap">Segunda</span>
+                        <p class="text-xs text-slate-400">Post de <strong>autoridade</strong> — mostre conhecimento do seu segmento. Use o card de Apresentação ou uma Citação.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/30 rounded-xl border border-slate-800/80 flex gap-3">
+                        <span class="text-[10px] bg-hubzyCyan/10 text-hubzyCyan px-2 py-0.5 rounded-full border border-hubzyCyan/20 h-fit whitespace-nowrap">Quarta</span>
+                        <p class="text-xs text-slate-400">Post <strong>educativo</strong> — dica prática, passo a passo ou dado relevante do seu nicho. Gera salvamentos.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/30 rounded-xl border border-slate-800/80 flex gap-3">
+                        <span class="text-[10px] bg-hubzyMagenta/10 text-hubzyMagenta px-2 py-0.5 rounded-full border border-hubzyMagenta/20 h-fit whitespace-nowrap">Sexta</span>
+                        <p class="text-xs text-slate-400">Post de <strong>conversão</strong> — oferta, serviço ou CTA direto. Hora em que as pessoas estão mais receptivas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-white text-sm uppercase tracking-wider text-hubzyMagenta flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-lightbulb"></i> Dicas rápidas
+                </h4>
+                <ul class="list-disc list-inside text-xs text-slate-300 space-y-1.5 pl-2">
+                    <li>Títulos curtos e diretos performam melhor — máximo 10 palavras.</li>
+                    <li>Use as cores da sua marca no tema <strong>"Cor da Marca"</strong> para posts com identidade visual consistente.</li>
+                    <li>Stories no formato 9:16 têm até 3x mais alcance que posts no feed.</li>
+                    <li>Copie a legenda gerada e adicione os emojis antes de publicar.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex justify-end">
+            <button onclick="toggleGuide(false)" class="bg-hubzyCyan text-slate-950 font-bold px-5 py-2 rounded-xl text-xs hover:bg-cyan-400 transition">
+                Entendido!
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script>
+// ── Estado global ─────────────────────────────────────────
+let currentTheme  = 'dark-gradient';
+let currentLayout = 'card01';
+let currentAspect = 'feed';
+let brandPrimary  = '#00D2FF';
+let brandSecondary= '#FF7E40';
+let logoDataURL   = null;
+let companyName   = 'Sua Empresa';
+let companyHandle = '@suaempresa';
+
+// ── Presets de cards (textos neutros, adaptáveis) ─────────
+const presets = {
+    card01: {
+        tag: "SOBRE NÓS",
+        title: "Soluções completas para fazer seu negócio crescer de verdade.",
+        body: "Somos especialistas no que você precisa. Fale com a gente e descubra como podemos ajudar.",
+        cta: "FALE NO WHATSAPP",
+        label: "Apresentação",
+        desc: "Abertura e proposta de valor",
+        quoteMark: false,
+        caption: "✨ [TITULO]\n\n[CORPO]\n\n👉 Chama a gente no WhatsApp!\n\n#[EMPRESA] #Marketing #NegociosOnline"
+    },
+    card02: {
+        tag: "NOSSOS SERVIÇOS",
+        title: "Conheça tudo que oferecemos para impulsionar sua empresa.",
+        body: "Do planejamento à execução, entregamos resultados que você pode ver e medir.",
+        cta: "SAIBA MAIS",
+        label: "Serviços",
+        desc: "Vitrine dos serviços",
+        quoteMark: false,
+        caption: "💼 [TITULO]\n\n[CORPO]\n\n👉 Chama a gente no WhatsApp!\n\n#[EMPRESA] #Servicos #Solucoes"
+    },
+    card03: {
+        tag: "DICA DO DIA",
+        title: "Uma informação valiosa que pode mudar seus resultados hoje.",
+        body: "Pequenas mudanças na rotina geram grandes impactos. Aplique essa dica e veja a diferença.",
+        cta: "SALVE ESSE POST",
+        label: "Dica Educativa",
+        desc: "Conteúdo de valor",
+        quoteMark: false,
+        caption: "💡 [TITULO]\n\n[CORPO]\n\n👉 Salve esse post para não esquecer!\n\n#[EMPRESA] #Dicas #Conhecimento"
+    },
+    card04: {
+        tag: "REFLEXÃO",
+        title: "O sucesso não é um acidente — é o resultado de decisões consistentes.",
+        body: "Cada escolha que você faz hoje constrói o futuro do seu negócio. Vale a pena pensar nisso.",
+        cta: "COMENTE O QUE ACHOU",
+        label: "Citação",
+        desc: "Frase de impacto",
+        quoteMark: true,
+        caption: "💬 \"[TITULO]\"\n\n[CORPO]\n\n👉 Deixe seu comentário!\n\n#[EMPRESA] #Motivacao #Negocios"
+    },
+    card05: {
+        tag: "PASSO A PASSO",
+        title: "3 passos simples para alcançar resultados mais rápido.",
+        body: "1. Defina seu objetivo com clareza\n2. Escolha as ferramentas certas\n3. Execute com consistência e meça os resultados.",
+        cta: "ARRASTE PARA VER MAIS",
+        label: "Passo a Passo",
+        desc: "Tutorial ou processo",
+        quoteMark: false,
+        caption: "📋 [TITULO]\n\n[CORPO]\n\n👉 Gostou? Salve para consultar depois!\n\n#[EMPRESA] #Tutorial #Aprendizado"
+    },
+    card06: {
+        tag: "RESULTADO",
+        title: "Veja o que clientes como você estão conquistando com a gente.",
+        body: "Resultados reais de pessoas reais. É isso que nos motiva a entregar sempre o melhor.",
+        cta: "QUERO ESSE RESULTADO",
+        label: "Prova Social",
+        desc: "Depoimento ou resultado",
+        quoteMark: true,
+        caption: "⭐ [TITULO]\n\n[CORPO]\n\n👉 Chama no WhatsApp e veja como!\n\n#[EMPRESA] #Resultados #Clientes"
+    },
+    card07: {
+        tag: "NOVIDADE",
+        title: "Temos uma novidade incrível chegando para vocês!",
+        body: "Estamos trabalhando em algo especial. Fique de olho nas próximas publicações.",
+        cta: "ATIVE AS NOTIFICAÇÕES",
+        label: "Novidade / Teaser",
+        desc: "Anúncio ou lançamento",
+        quoteMark: false,
+        caption: "🚀 [TITULO]\n\n[CORPO]\n\n👉 Fique ligado nas novidades!\n\n#[EMPRESA] #Novidade #Lancamento"
+    },
+    card08: {
+        tag: "PERGUNTA",
+        title: "Qual é o maior desafio que você enfrenta hoje no seu negócio?",
+        body: "Adoramos ouvir de você. Sua resposta nos ajuda a criar conteúdo ainda mais relevante.",
+        cta: "RESPONDA NOS COMENTÁRIOS",
+        label: "Engajamento",
+        desc: "Pergunta para engajar",
+        quoteMark: false,
+        caption: "❓ [TITULO]\n\n[CORPO]\n\n👉 Conta pra gente nos comentários!\n\n#[EMPRESA] #Comunidade #Engajamento"
+    },
+    card09: {
+        tag: "PROMOÇÃO",
+        title: "Oferta especial por tempo limitado — não perca essa oportunidade!",
+        body: "Condições exclusivas para novos clientes. Entre em contato agora e garanta o seu.",
+        cta: "APROVEITE AGORA",
+        label: "Oferta / Promoção",
+        desc: "Oferta ou desconto",
+        quoteMark: false,
+        caption: "🔥 [TITULO]\n\n[CORPO]\n\n👉 Chama no WhatsApp antes que acabe!\n\n#[EMPRESA] #Promocao #Oferta"
+    },
+    card10: {
+        tag: "FALE CONOSCO",
+        title: "Pronto para dar o próximo passo? A gente está aqui para ajudar.",
+        body: "Sem burocracia, sem enrolação. Só uma conversa rápida para entender o que você precisa.",
+        cta: "PRIMEIRO CONTATO GRÁTIS",
+        label: "Call to Action",
+        desc: "Convite final de contato",
+        quoteMark: false,
+        caption: "📲 [TITULO]\n\n[CORPO]\n\n👉 Chama no WhatsApp agora mesmo!\n\n#[EMPRESA] #Contato #Parceria"
+    }
+};
+
+// ── Onboarding ────────────────────────────────────────────
+function obNext(step) {
+    [1,2,3].forEach(i => {
+        document.getElementById(`ob-step-${i}`).classList.add('hidden');
+        document.getElementById(`dot-${i}`).classList.remove('active');
+    });
+    document.getElementById(`ob-step-${step}`).classList.remove('hidden');
+    document.getElementById(`dot-${step}`).classList.add('active');
+}
+
+function obLoadLogo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        logoDataURL = e.target.result;
+        const preview = document.getElementById('ob-logo-preview');
+        preview.innerHTML = `<img src="${logoDataURL}" class="w-full h-full object-cover rounded-full">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+function setPalette(primary, secondary) {
+    document.getElementById('ob-color-primary').value   = primary;
+    document.getElementById('ob-color-secondary').value = secondary;
+}
+
+function finishOnboarding() {
+    companyName   = document.getElementById('ob-company').value.trim() || 'Sua Empresa';
+    companyHandle = document.getElementById('ob-handle').value.trim()  || '@suaempresa';
+    brandPrimary  = document.getElementById('ob-color-primary').value;
+    brandSecondary= document.getElementById('ob-color-secondary').value;
+    const niche   = document.getElementById('ob-niche').value;
+
+    // Sincronizar cores no editor
+    document.getElementById('color-primary').value   = brandPrimary;
+    document.getElementById('color-secondary').value = brandSecondary;
+
+    // Atualizar header
+    document.getElementById('header-company').textContent = companyName + ' Studio';
+    const nicheLabels = {
+        saude:'Saúde & Bem-estar', auto:'Automotivo', tech:'Tecnologia',
+        varejo:'Varejo', alimentacao:'Alimentação', educacao:'Educação',
+        beleza:'Beleza', juridico:'Consultoria', imoveis:'Imóveis',
+        rh:'RH & Gestão', religioso:'Religioso', turismo:'Turismo', geral:'Posts Profissionais'
+    };
+    document.getElementById('header-niche').textContent = nicheLabels[niche] || 'Posts Profissionais';
+
+    // Logo
+    if (logoDataURL) applyLogo(logoDataURL);
+
+    // Handle padrão
+    document.getElementById('input-handle').value = companyHandle;
+    document.getElementById('canvas-handle').textContent = companyHandle;
+
+    // Inicial do placeholder
+    const initial = companyName.charAt(0).toUpperCase();
+    document.getElementById('header-logo-placeholder').textContent = initial;
+    document.getElementById('canvas-logo-placeholder').textContent = initial;
+
+    // Aplicar cores
+    applyBrandColors();
+    buildCardButtons();
+    applyPreset('card01');
+
+    // Mostrar app
+    document.getElementById('onboarding').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('onboarding').classList.add('hidden');
+        const app = document.getElementById('app');
+        app.classList.remove('hidden');
+        app.classList.add('flex');
+    }, 400);
+}
+
+function resetOnboarding() {
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('app').classList.remove('flex');
+    const ob = document.getElementById('onboarding');
+    ob.classList.remove('hidden');
+    ob.style.opacity = '1';
+    obNext(1);
+}
+
+// ── Construir botões de cards ─────────────────────────────
+function buildCardButtons() {
+    const container = document.getElementById('card-buttons');
+    container.innerHTML = '';
+    Object.entries(presets).forEach(([key, p]) => {
+        const btn = document.createElement('button');
+        btn.id = `btn-card-${key}`;
+        btn.onclick = () => applyPreset(key);
+        btn.className = 'p-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-left transition group';
+        btn.innerHTML = `
+            <span class="block text-xs font-bold text-white group-hover:text-hubzyCyan">${p.label}</span>
+            <span class="text-[10px] text-slate-400">${p.desc}</span>`;
+        container.appendChild(btn);
+    });
+}
+
+// ── Aplicar preset ────────────────────────────────────────
+function applyPreset(key) {
+    currentLayout = key;
+    const d = presets[key];
+    if (!d) return;
+
+    document.getElementById('input-tag').value   = d.tag;
+    document.getElementById('input-title').value = d.title;
+    document.getElementById('input-body').value  = d.body;
+    document.getElementById('input-cta').value   = d.cta;
+
+    document.getElementById('quote-mark').classList.toggle('hidden', !d.quoteMark);
+
+    // Highlight botão ativo
+    Object.keys(presets).forEach(k => {
+        const b = document.getElementById(`btn-card-${k}`);
+        if (b) b.className = 'p-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-left transition group';
+    });
+    const active = document.getElementById(`btn-card-${key}`);
+    if (active) active.className = 'p-3 bg-slate-900 border rounded-xl text-left transition group border-hubzyCyan';
+
+    updateContent();
+}
+
+// ── Sincronizar conteúdo ──────────────────────────────────
+function updateContent() {
+    document.getElementById('canvas-tag').textContent   = (document.getElementById('input-tag').value || '').toUpperCase();
+    document.getElementById('canvas-title').textContent = document.getElementById('input-title').value;
+    document.getElementById('canvas-body').innerHTML    = (document.getElementById('input-body').value || '').replace(/\n/g,'<br>');
+    document.getElementById('canvas-cta').textContent   = (document.getElementById('input-cta').value || '').toUpperCase();
+    document.getElementById('canvas-handle').textContent= document.getElementById('input-handle').value;
+
+    // Marca d'água
+    document.getElementById('watermark').classList.toggle('hidden', !document.getElementById('toggle-watermark').checked);
+
+    // Legenda
+    const p = presets[currentLayout];
+    if (p) {
+        const caption = (p.caption || '')
+            .replace('[TITULO]', document.getElementById('input-title').value)
+            .replace('[CORPO]',  document.getElementById('input-body').value)
+            .replace(/\[EMPRESA\]/g, companyName);
+        document.getElementById('output-caption').value = caption;
+    }
+}
+
+// ── Cores da marca ────────────────────────────────────────
+function applyBrandColors() {
+    brandPrimary   = document.getElementById('color-primary').value;
+    brandSecondary = document.getElementById('color-secondary').value;
+
+    // Tag no canvas
+    const tag = document.getElementById('canvas-tag');
+    tag.style.color       = brandPrimary;
+    tag.style.background  = brandPrimary + '18';
+    tag.style.borderColor = brandPrimary + '40';
+
+    // Dot CTA
+    document.getElementById('canvas-dot').style.background = brandSecondary;
+
+    // Swatch no botão de tema
+    document.getElementById('brand-swatch').style.background = brandPrimary;
+}
+
+// ── Logo ──────────────────────────────────────────────────
+function applyLogo(src) {
+    logoDataURL = src;
+    // Header
+    const hLogo = document.getElementById('header-logo');
+    hLogo.src = src; hLogo.classList.remove('hidden');
+    document.getElementById('header-logo-placeholder').classList.add('hidden');
+    // Canvas
+    const cLogo = document.getElementById('canvas-logo');
+    cLogo.src = src; cLogo.classList.remove('hidden');
+    document.getElementById('canvas-logo-placeholder').classList.add('hidden');
+}
+
+function uploadLogo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => applyLogo(e.target.result);
+    reader.readAsDataURL(file);
+}
+
+// ── Fonte ─────────────────────────────────────────────────
+function updateFont() {
+    const f = document.getElementById('select-font').value;
+    const t = document.getElementById('export-target');
+    t.classList.remove('font-jakarta','font-nunito','font-serif');
+    t.classList.add(f);
+}
+
+// ── Título size ───────────────────────────────────────────
+function updateTitleSize() {
+    const s = document.getElementById('input-font-size').value;
+    document.getElementById('title-size-val').textContent = s + 'px';
+    document.getElementById('canvas-title').style.fontSize = s + 'px';
+}
+
+// ── Toggles ───────────────────────────────────────────────
+function toggleNodes() {
+    document.getElementById('nodes-container').style.display =
+        document.getElementById('toggle-nodes').checked ? 'block' : 'none';
+}
+function toggleLogoBorder() {
+    const w = document.getElementById('canvas-logo-wrapper');
+    w.style.boxShadow = document.getElementById('toggle-logo-border').checked
+        ? `0 0 0 4px ${brandPrimary}33` : 'none';
+}
+
+// ── Tema ──────────────────────────────────────────────────
+function setTheme(name) {
+    currentTheme = name;
+    const ids = ['dark-gradient','neon-sunset','clean-white','brand-color'];
+    ids.forEach(id => {
+        const b = document.getElementById(`btn-theme-${id}`);
+        if (b) b.className = 'p-2 rounded-lg text-xs bg-slate-900 border border-slate-800 flex items-center gap-1 justify-center';
+    });
+    const ab = document.getElementById(`btn-theme-${name}`);
+    if (ab) ab.className = 'p-2 rounded-lg text-xs bg-slate-900 border border-hubzyCyan flex items-center gap-1 justify-center';
+
+    const el = document.getElementById('export-target');
+    const title = document.getElementById('canvas-title');
+    const body  = document.getElementById('canvas-body');
+    const footer= document.getElementById('canvas-cta').closest('div').parentElement;
+
+    if (name === 'dark-gradient') {
+        el.style.background = 'radial-gradient(circle at 50% 120%, #0e52d12b 0%, #31108221 40%, #050212 100%), #0b0726';
+        title.className = 'text-2xl md:text-3xl font-extrabold text-white leading-snug tracking-tight';
+        body.className  = 'text-sm md:text-base text-slate-300 mt-4 leading-relaxed font-light';
+        footer.className= 'flex items-center justify-between z-10 pt-4 border-t border-slate-800/60 w-full';
+    } else if (name === 'neon-sunset') {
+        el.style.background = 'linear-gradient(135deg, #311082 0%, #e02484 50%, #ff7e40 100%)';
+        title.className = 'text-2xl md:text-3xl font-extrabold text-white leading-snug tracking-tight';
+        body.className  = 'text-sm md:text-base text-white/80 mt-4 leading-relaxed font-light';
+        footer.className= 'flex items-center justify-between z-10 pt-4 border-t border-white/20 w-full';
+    } else if (name === 'clean-white') {
+        el.style.background = '#ffffff';
+        title.className = 'text-2xl md:text-3xl font-extrabold text-slate-900 leading-snug tracking-tight';
+        body.className  = 'text-sm md:text-base text-slate-600 mt-4 leading-relaxed font-light';
+        footer.className= 'flex items-center justify-between z-10 pt-4 border-t border-slate-200 w-full';
+    } else if (name === 'brand-color') {
+        el.style.background = `linear-gradient(135deg, ${brandPrimary}dd 0%, ${brandSecondary}cc 100%)`;
+        title.className = 'text-2xl md:text-3xl font-extrabold text-white leading-snug tracking-tight';
+        body.className  = 'text-sm md:text-base text-white/80 mt-4 leading-relaxed font-light';
+        footer.className= 'flex items-center justify-between z-10 pt-4 border-t border-white/20 w-full';
+    }
+}
+
+// ── Aspect ratio ──────────────────────────────────────────
+function changeAspect(aspect) {
+    currentAspect = aspect;
+    const el = document.getElementById('export-target');
+    const bf = document.getElementById('btn-aspect-feed');
+    const bs = document.getElementById('btn-aspect-stories');
+    if (aspect === 'feed') {
+        el.className = 'canvas-container w-full max-w-[500px] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col p-8 md:p-10 justify-between transition-all duration-300';
+        bf.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-hubzyPurple text-white flex items-center gap-1 border border-hubzyPurple';
+        bs.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1 border border-slate-700 transition';
+    } else {
+        el.className = 'canvas-container stories rounded-2xl shadow-2xl relative overflow-hidden flex flex-col p-8 justify-between transition-all duration-300';
+        bf.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1 border border-slate-700 transition';
+        bs.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-hubzyPurple text-white flex items-center gap-1 border border-hubzyPurple';
+    }
+    setTheme(currentTheme);
+}
+
+// ── Copiar legenda ────────────────────────────────────────
+function copyCaption() {
+    const el = document.getElementById('output-caption');
+    el.select(); el.setSelectionRange(0,99999);
+    try {
+        document.execCommand('copy');
+        const btn = document.querySelector('button[onclick="copyCaption()"]');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> Copiado!';
+        setTimeout(() => btn.innerHTML = orig, 2000);
+    } catch(e) {}
+}
+
+// ── Guide modal ───────────────────────────────────────────
+function toggleGuide(show) {
+    document.getElementById('guide-modal').classList.toggle('hidden', !show);
+}
+
+// ── Wrap text helper ──────────────────────────────────────
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const lines = text.split('\n');
+    let cy = y;
+    lines.forEach(rawLine => {
+        const words = rawLine.split(' ');
+        let line = '';
+        words.forEach(word => {
+            const test = line ? line + ' ' + word : word;
+            if (ctx.measureText(test).width > maxWidth && line) {
+                ctx.fillText(line, x, cy); line = word; cy += lineHeight;
+            } else { line = test; }
+        });
+        if (line) { ctx.fillText(line, x, cy); cy += lineHeight; }
+    });
+    return cy;
+}
+
+// ── Export PNG ────────────────────────────────────────────
+function exportPost() {
+    const isStories = currentAspect === 'stories';
+    const W = 1080, H = isStories ? 1920 : 1080, PAD = 80;
+    const cvs = document.createElement('canvas');
+    cvs.width = W; cvs.height = H;
+    const ctx = cvs.getContext('2d');
+
+    // Background
+    const bgMap = {
+        'dark-gradient': () => {
+            const g = ctx.createRadialGradient(W/2,H,0,W/2,H,H*1.2);
+            g.addColorStop(0,'#0e52d1'); g.addColorStop(.4,'#311082'); g.addColorStop(1,'#050212');
+            ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+        },
+        'neon-sunset': () => {
+            const g = ctx.createLinearGradient(0,0,W,H);
+            g.addColorStop(0,'#311082'); g.addColorStop(.5,'#e02484'); g.addColorStop(1,'#ff7e40');
+            ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+        },
+        'clean-white': () => { ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H); },
+        'brand-color': () => {
+            const g = ctx.createLinearGradient(0,0,W,H);
+            g.addColorStop(0,brandPrimary); g.addColorStop(1,brandSecondary);
+            ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+        }
+    };
+    (bgMap[currentTheme]||bgMap['dark-gradient'])();
+
+    // Grafismo
+    if (document.getElementById('toggle-nodes').checked) {
+        ctx.save();
+        ctx.strokeStyle='rgba(0,210,255,0.15)'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(-40,H*.25); ctx.quadraticCurveTo(W*.25,H*.35,W*.25,H*.65); ctx.stroke();
+        ctx.setLineDash([8,8]);
+        ctx.beginPath(); ctx.moveTo(W*.25,H*.65); ctx.quadraticCurveTo(W*.5,H*.15,W+20,H*.08); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=brandPrimary; ctx.beginPath(); ctx.arc(W*.25,H*.65,10,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=brandSecondary; ctx.beginPath(); ctx.arc(W-20,H*.08,8,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+    }
+
+    const isLight = currentTheme === 'clean-white';
+    const titleColor = isLight ? '#0f172a' : '#ffffff';
+    const bodyColor  = isLight ? '#475569' : '#cbd5e1';
+    const borderColor= isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.1)';
+
+    // TAG
+    const tagText = (document.getElementById('input-tag').value||'').toUpperCase();
+    ctx.font = `700 ${isStories?38:28}px 'Plus Jakarta Sans',sans-serif`;
+    const tagW = ctx.measureText(tagText).width+48, tagH = isStories?56:44;
+    ctx.fillStyle = brandPrimary+'20';
+    ctx.beginPath(); ctx.roundRect(PAD,PAD,tagW,tagH,tagH/2); ctx.fill();
+    ctx.strokeStyle = brandPrimary+'50'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(PAD,PAD,tagW,tagH,tagH/2); ctx.stroke();
+    ctx.fillStyle=brandPrimary; ctx.textBaseline='middle';
+    ctx.fillText(tagText, PAD+24, PAD+tagH/2);
+
+    // TITLE
+    let textY = isStories ? H*.26 : H*.22;
+    const preset = presets[currentLayout]||{};
+    if (preset.quoteMark) {
+        ctx.font=`700 ${isStories?200:160}px serif`;
+        ctx.fillStyle='rgba(224,36,132,0.18)'; ctx.textBaseline='top';
+        ctx.fillText('"',PAD-10,textY-(isStories?80:60));
+    }
+    const titleSize = parseInt(document.getElementById('input-font-size').value)*(isStories?2.6:2.1);
+    ctx.font=`800 ${titleSize}px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillStyle=titleColor; ctx.textBaseline='top';
+    textY = wrapText(ctx, document.getElementById('input-title').value, PAD, textY, W-PAD*2, titleSize*1.3);
+    textY += isStories?40:30;
+
+    // BODY
+    const bodySize = isStories?44:34;
+    ctx.font=`300 ${bodySize}px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillStyle=bodyColor;
+    wrapText(ctx, document.getElementById('input-body').value, PAD, textY, W-PAD*2, bodySize*1.55);
+
+    // FOOTER
+    const footerY = H-PAD-(isStories?80:64);
+    ctx.strokeStyle=borderColor; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(PAD,footerY); ctx.lineTo(W-PAD,footerY); ctx.stroke();
+    const ftY = footerY+(isStories?46:36);
+    ctx.fillStyle=brandSecondary;
+    ctx.beginPath(); ctx.arc(PAD+10, ftY-(isStories?6:5), isStories?12:9, 0, Math.PI*2); ctx.fill();
+    ctx.font=`700 ${isStories?36:28}px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillStyle=isLight?'#334155':'#e2e8f0'; ctx.textBaseline='middle';
+    ctx.fillText((document.getElementById('input-cta').value||'').toUpperCase(), PAD+30, ftY);
+    ctx.font=`600 ${isStories?36:28}px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillStyle=isLight?'#64748b':'#94a3b8'; ctx.textAlign='right';
+    ctx.fillText(document.getElementById('input-handle').value||'@suaempresa', W-PAD, ftY);
+    ctx.textAlign='left';
+
+    // WATERMARK
+    if (document.getElementById('toggle-watermark').checked) {
+        ctx.font=`400 ${isStories?28:20}px 'Plus Jakarta Sans',sans-serif`;
+        ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.textAlign='right'; ctx.textBaseline='bottom';
+        ctx.fillText('Criado com Hubzy Studio', W-PAD, H-20);
+        ctx.textAlign='left';
+    }
+
+    // LOGO
+    const logoSize = isStories?110:88;
+    const logoX = W-PAD-logoSize/2, logoY = PAD+tagH/2;
+
+    function drawLogoFallback() {
+        const g = ctx.createLinearGradient(logoX-logoSize/2,logoY-logoSize/2,logoX+logoSize/2,logoY+logoSize/2);
+        g.addColorStop(0,'#311082'); g.addColorStop(1,brandPrimary);
+        ctx.save(); ctx.beginPath(); ctx.arc(logoX,logoY,logoSize/2,0,Math.PI*2); ctx.clip();
+        ctx.fillStyle=g; ctx.fillRect(logoX-logoSize/2,logoY-logoSize/2,logoSize,logoSize);
+        // Inicial
+        ctx.fillStyle='#fff'; ctx.font=`800 ${logoSize*.45}px sans-serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(companyName.charAt(0).toUpperCase(), logoX, logoY);
+        ctx.restore(); ctx.textAlign='left';
+    }
+
+    function finalize() {
+        if (document.getElementById('toggle-logo-border').checked) {
+            ctx.strokeStyle=brandPrimary+'60'; ctx.lineWidth=isStories?6:5;
+            ctx.beginPath(); ctx.arc(logoX,logoY,logoSize/2+5,0,Math.PI*2); ctx.stroke();
+        }
+        const a = document.createElement('a');
+        a.href = cvs.toDataURL('image/png');
+        a.download = `post-${companyName.replace(/\s+/g,'-').toLowerCase()}-${currentLayout}-${currentAspect}.png`;
+        a.click();
+        const btn = document.querySelector('button[onclick="exportPost()"]');
+        btn.innerHTML='<i class="fa-solid fa-download"></i> Baixar Imagem (PNG)';
+        btn.disabled=false;
+    }
+
+    const btn = document.querySelector('button[onclick="exportPost()"]');
+    btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Gerando...'; btn.disabled=true;
+
+    if (logoDataURL) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.save(); ctx.beginPath(); ctx.arc(logoX,logoY,logoSize/2,0,Math.PI*2); ctx.clip();
+            ctx.drawImage(img,logoX-logoSize/2,logoY-logoSize/2,logoSize,logoSize);
+            ctx.restore(); finalize();
+        };
+        img.onerror = () => { drawLogoFallback(); finalize(); };
+        img.src = logoDataURL;
+    } else {
+        drawLogoFallback(); finalize();
+    }
+}
+
+// ── Init ──────────────────────────────────────────────────
+buildCardButtons();
+</script>
+</body>
+</html>
